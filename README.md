@@ -4,4 +4,4 @@
 
       
     
-<img src = "https://github.com/baesomi/SomTestBot/blob/master/picture/capture.JPG?raw=true" align="center" width="35%">
+<img src = "https://github.com/baesomi/SomTestBot/blob/master/picture/capture.JPG?raw=true" align="center" width="80%">
