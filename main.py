@@ -7,6 +7,7 @@ import logging
 from credentials import *
 
 from modules.naver_weather import weather
+from modules.melon_rank import get_music_chart
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -36,7 +37,7 @@ def start(bot, update):
                 [MUSIC_CHART, SEARCH_CHART]]
 
     # Create initial message:
-    message = "소미 맘대로하는 봇입니다."
+    message = "소미 맘대로하는 봇입니다. 시작할 때는 /satrt 끝낼때는 /end 를 기억하세요!"
 
     chat_id = update.message.chat_id
 
@@ -59,11 +60,11 @@ def menu(bot, update):
         bot.sendChatAction(chat_id, "TYPING")
         register_text = MOVIE_CHART + "를 선택했습니다."
         update.message.reply_text(register_text, reply_markup=ReplyKeyboardRemove())
-        getMovieChart(bot, update)
+        get_movie_chart(bot, update)
 
     elif update.message.text == TODAY_WEATHER:
         bot.sendChatAction(chat_id, "TYPING")
-        register_text = TODAY_WEATHER + "를 선택했습니다."
+        register_text = TODAY_WEATHER + "를 선택했습니다.  /날씨 서울 이런식으로 물어보세여ㅎㅎ"
         update.message.reply_text(register_text, reply_markup=ReplyKeyboardRemove())
         return CURWEATHER
 
@@ -71,13 +72,13 @@ def menu(bot, update):
         bot.sendChatAction(chat_id, "TYPING")
         register_text = MUSIC_CHART + "를 선택했습니다."
         update.message.reply_text(register_text, reply_markup=ReplyKeyboardRemove())
-        getMusicChart(bot, update)
+        get_music_chart(bot, update);
 
     elif update.message.text == SEARCH_CHART:
         bot.sendChatAction(chat_id, "TYPING")
         register_text = SEARCH_CHART + "를 선택했습니다."
         update.message.reply_text(register_text, reply_markup=ReplyKeyboardRemove())
-        getSearchChart(bot, update)
+        get_search_chart(bot, update)
 
     else:
         bot.sendChatAction(chat_id, "TYPING")
@@ -96,17 +97,12 @@ def cancel(bot, update):
     return ConversationHandler.END
 
 
-def getMovieChart(bot, update):
+def get_movie_chart(bot, update):
     update.message.reply_text("영화 순위 기능")
     return ConversationHandler.END
 
 
-def getMusicChart(bot, update):
-    update.message.reply_text("실시간 음원차트 기능")
-    return ConversationHandler.END
-
-
-def getSearchChart(bot, update):
+def get_search_chart(bot, update):
     update.message.reply_text("실시간 검색어 기능")
     return ConversationHandler.END
 
@@ -126,7 +122,7 @@ def main():
             CURWEATHER: [CommandHandler("날씨", weather, pass_user_data=True)]
         },
 
-        fallbacks=[CommandHandler('cancel', cancel)]
+        fallbacks=[CommandHandler('end', cancel)]
     )
 
     dp.add_handler(conv_handler)
