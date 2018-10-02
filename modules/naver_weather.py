@@ -1,7 +1,21 @@
 import requests
 from bs4 import BeautifulSoup
 from uuid import uuid4
+from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, RegexHandler)
+from emoji import emojize
 
+#GLOBAL VARIABLE
+CLOUDY = ["구름","흐림"]
+SUNNY = "맑음"
+RAINY = "비"
+SNOWING = "눈"
+
+#emoji code
+EMOJI_CLOUD = emojize(":cloud:", use_aliases=True)
+EMOJI_FOGGY = emojize(":foggy:", use_aliases=True)
+EMOJI_RANIY = emojize(":umbrella:", use_aliases=True)
+EMOJI_SNOWING = emojize(":snowflake:", use_aliases=True)
+EMOJI_SUNNY = emojize(":sunny:", use_aliases=True)
 
 def weather(self, update, user_data):
     session = requests.Session()
@@ -78,12 +92,28 @@ def weather(self, update, user_data):
     table = soup.find(class_="tbl_weather tbl_today3")
 
     t_ary = list(table.stripped_strings)
+    converted_char = [t_ary[9],t_ary[15],t_ary[21],t_ary[27]]
+    result_emoji = list()
+
+    for i in range(4):
+        if converted_char[i] in SUNNY :
+            result_emoji.append(EMOJI_SUNNY)
+        elif converted_char[i] in CLOUDY:
+            result_emoji.append(EMOJI_CLOUD)
+        elif converted_char[i] in RAINY:
+            result_emoji.append(EMOJI_RANIY)
+        elif converted_char[i] in SNOWING:
+            result_emoji.append(EMOJI_SNOWING)
+        else:
+            result_emoji.append("")
+
     update.message.reply_text(
-        "[" + self.area + " 날씨 검색 결과]\n"
+        "[" + self.area + " 날씨]\n"
         + "- 오늘(" + t_ary[3] + ")\n"
-        + "\t오전 : " + t_ary[7] + "℃(" + t_ary[9] + ", 강수확률 " + t_ary[11] + ")\n"
-        + "\t오후 : " + t_ary[13] + "℃(" + t_ary[15] + ", 강수확률 " + t_ary[17] + ")\n"
+        + "\t오전 : " + t_ary[7] + "℃(" + t_ary[9] + " " + result_emoji[0] + ", 강수확률 " + t_ary[11] + ")\n"
+        + "\t오후 : " + t_ary[13] + "℃(" + t_ary[15] + " " + result_emoji[1] + ", 강수확률 " + t_ary[17] + ")\n"
         + "- 내일(" + t_ary[5] + ")\n"
-        + "\t오전 : " + t_ary[19] + "℃(" + t_ary[21] + ", 강수확률 " + t_ary[23] + ")\n"
-        + "\t오후 : " + t_ary[25] + "℃(" + t_ary[27] + ", 강수확률 " + t_ary[29] + ")\n"
+        + "\t오전 : " + t_ary[19] + "℃(" + t_ary[21] + " " + result_emoji[2] + ", 강수확률 " + t_ary[23] + ")\n"
+        + "\t오후 : " + t_ary[25] + "℃(" + t_ary[27] + " " + result_emoji[3] + ", 강수확률 " + t_ary[29] + ")\n"
     )
+
