@@ -8,6 +8,8 @@ from credentials import *
 
 from modules.naver_weather import weather
 from modules.melon_rank import get_music_chart
+from modules.movie_chart import get_movie_chart
+from modules.search_rank import get_search_rank
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -56,7 +58,7 @@ def menu(bot, update):
     logger.info("function call menu")
     chat_id = update.message.chat_id
 
-    if update.message.text == MOVIE:
+    if update.message.text == MOVIE_CHART:
         bot.sendChatAction(chat_id, "TYPING")
         register_text = MOVIE_CHART + "를 선택했습니다."
         update.message.reply_text(register_text, reply_markup=ReplyKeyboardRemove())
@@ -72,13 +74,13 @@ def menu(bot, update):
         bot.sendChatAction(chat_id, "TYPING")
         register_text = MUSIC_CHART + "를 선택했습니다."
         update.message.reply_text(register_text, reply_markup=ReplyKeyboardRemove())
-        get_music_chart(bot, update);
+        get_music_chart(bot, update)
 
     elif update.message.text == SEARCH_CHART:
         bot.sendChatAction(chat_id, "TYPING")
         register_text = SEARCH_CHART + "를 선택했습니다."
         update.message.reply_text(register_text, reply_markup=ReplyKeyboardRemove())
-        get_search_chart(bot, update)
+        get_search_rank(bot, update)
 
     else:
         bot.sendChatAction(chat_id, "TYPING")
@@ -94,16 +96,6 @@ def cancel(bot, update):
     logger.info("User {} canceled the conversation.".format(user.first_name))
     update.message.reply_text("종료합니다.",reply_markup=ReplyKeyboardRemove())
 
-    return ConversationHandler.END
-
-
-def get_movie_chart(bot, update):
-    update.message.reply_text("영화 순위 기능")
-    return ConversationHandler.END
-
-
-def get_search_chart(bot, update):
-    update.message.reply_text("실시간 검색어 기능")
     return ConversationHandler.END
 
 # main문을 정의하고
