@@ -11,12 +11,13 @@ def get_search_rank(self, update):
     result = requests.get(self.addr, headers=header).text
     soup = BeautifulSoup(result, 'html.parser')
 
-    keywords = soup.select('div.keyword_rank.select_date span.title')
+    keywords_list = soup.select_one('div.keyword_rank')
+    keywords = keywords_list.select('li.list span.title')
     keyword_top_ten = ''
 
     for idx, keyword in enumerate(keywords[:10],1):
         title = keyword.text
-        keyword_top_ten += str(idx) + '위 ' + title + '\n'
-
+        search_url = "https://search.naver.com/search.naver?where=nexearch&query=" + title + "&sm=top_lve&ie=utf8"
+        keyword_top_ten += str(idx) + '위 ' + title + '\n' + search_url + '\n'
 
     update.message.reply_text(keyword_top_ten)
