@@ -1,6 +1,6 @@
 #import modules
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, RegexHandler)
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import InlineKeyboardButton,ReplyKeyboardMarkup, ReplyKeyboardRemove
 import logging
 
 
@@ -66,8 +66,15 @@ def menu(bot, update):
 
     elif update.message.text == TODAY_WEATHER:
         bot.sendChatAction(chat_id, "TYPING")
-        register_text = TODAY_WEATHER + "를 선택했습니다.  /날씨 서울 이런식으로 물어보세여ㅎㅎ"
-        update.message.reply_text(register_text, reply_markup=ReplyKeyboardRemove())
+        register_text = TODAY_WEATHER + "를 선택했습니다. 원하는 지역을 선택하세요."
+        keyboard = [[InlineKeyboardButton("서울"), "성남", "수원"],
+                    ["용인", "제주", "독도"],
+                    ["이전"]]
+
+        # Create initial message:
+        message = ""
+        bot.sendChatAction(update.message.chat_id, "TYPING")
+        update.message.reply_text(register_text, reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
         return CURWEATHER
 
     elif update.message.text == MUSIC_CHART:
@@ -98,6 +105,7 @@ def cancel(bot, update):
 
     return ConversationHandler.END
 
+
 # main문을 정의하고
 def main():
 
@@ -111,7 +119,7 @@ def main():
 
         states={
             MENU: [MessageHandler(Filters.text, menu)],
-            CURWEATHER: [CommandHandler("날씨", weather, pass_user_data=True)]
+            CURWEATHER: [MessageHandler(Filters.text, weather, pass_user_data=True)]
         },
 
         fallbacks=[CommandHandler('end', cancel)]

@@ -18,6 +18,7 @@ EMOJI_SNOWING = emojize(":snowflake:", use_aliases=True)
 EMOJI_SUNNY = emojize(":sunny:", use_aliases=True)
 
 def weather(self, update, user_data):
+    from main import start
     session = requests.Session()
     addr = "http://weather.naver.com/rgn/cityWetrCity.nhn?cityRgnCd=CT"
     map_cityNum = {  # 지역 번호 매핑
@@ -78,8 +79,11 @@ def weather(self, update, user_data):
 
     key = str(uuid4())
     # 사용자가 입력한 도시명을 받는다.
-    area = update.message.text.partition(' ')[2]
-    user_data[key] = area
+    area = update.message.text
+    if area == "이전":
+        return start(self, update)
+    else:
+        user_data[key] = area
 
     self.area = area
     # 입력받은 도시명과 번호를 대조하여 번호를 저장한다.
@@ -92,10 +96,10 @@ def weather(self, update, user_data):
     table = soup.find(class_="tbl_weather tbl_today3")
 
     t_ary = list(table.stripped_strings)
-    converted_char = [t_ary[9],t_ary[15],t_ary[21],t_ary[27]]
+    converted_char = [t_ary[9],t_ary[15]]
     result_emoji = list()
 
-    for i in range(4):
+    for i in range(2):
         if converted_char[i] in SUNNY :
             result_emoji.append(EMOJI_SUNNY)
         elif converted_char[i] in CLOUDY:
@@ -112,8 +116,5 @@ def weather(self, update, user_data):
         + "- 오늘(" + t_ary[3] + ")\n"
         + "\t오전 : " + t_ary[7] + "℃(" + t_ary[9] + " " + result_emoji[0] + ", 강수확률 " + t_ary[11] + ")\n"
         + "\t오후 : " + t_ary[13] + "℃(" + t_ary[15] + " " + result_emoji[1] + ", 강수확률 " + t_ary[17] + ")\n"
-        + "- 내일(" + t_ary[5] + ")\n"
-        + "\t오전 : " + t_ary[19] + "℃(" + t_ary[21] + " " + result_emoji[2] + ", 강수확률 " + t_ary[23] + ")\n"
-        + "\t오후 : " + t_ary[25] + "℃(" + t_ary[27] + " " + result_emoji[3] + ", 강수확률 " + t_ary[29] + ")\n"
     )
 
