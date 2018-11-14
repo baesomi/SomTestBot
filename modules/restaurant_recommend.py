@@ -1,7 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-from uuid import uuid4
-
 
 def set_where(self, update):
     return update.message.text + " "
