@@ -1,6 +1,6 @@
 #import modules
-from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, RegexHandler)
-from telegram import InlineKeyboardButton,ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler)
+from telegram import InlineKeyboardButton,ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup
 import logging
 
 
@@ -32,23 +32,21 @@ cash = ''
 
 # define command handlers
 def start(bot, update):
-    """
-        Start function. Displayed whenever the /start command is called.
-        This function sets the language of the bot.
-        """
-    # Create buttons to slect language:
-    keyboard = [[TODAY_WEATHER, MOVIE_CHART],
-                [MUSIC_CHART, SEARCH_CHART],
-                [RECOMM_FOOD]]
 
     # Create initial message:
     message = "소미 맘대로하는 봇입니다. 시작할 때는 /satrt 끝낼때는 /end 를 기억하세요!"
 
-    chat_id = update.message.chat_id
+    functions = [MOVIE_CHART, TODAY_WEATHER, MUSIC_CHART, SEARCH_CHART, RECOMM_FOOD]
+    function_list = []
 
+    for func in functions:
+        function_list.append(InlineKeyboardButton(func, callback_data=func))
+
+    show_functions = InlineKeyboardMarkup(build_keyboard(function_list, (int)(len(function_list)/2)))  # make markup
+    chat_id = update.message.chat_id
     bot.sendChatAction(chat_id, "TYPING")
-    update.message.reply_text(message,
-                              reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
+    update.message.reply_text(message, reply_markup=show_functions)
+
     return MENU
 
 
@@ -59,64 +57,87 @@ def unknown(bot, update):
 
 def menu(bot, update):
     logger.info("function call menu")
-    chat_id = update.message.chat_id
+    chat_id = update.callback_query.message.chat_id
 
-    if update.message.text == MOVIE_CHART:
+    if update.callback_query.data == MOVIE_CHART:
         bot.sendChatAction(chat_id, "TYPING")
         register_text = MOVIE_CHART + "를 선택했습니다."
-        update.message.reply_text(register_text, reply_markup=ReplyKeyboardRemove())
+        update.message.reply_text(register_text)
         get_movie_chart(bot, update)
 
-    elif update.message.text == TODAY_WEATHER:
+    elif update.callback_query.data == TODAY_WEATHER:
         bot.sendChatAction(chat_id, "TYPING")
         register_text = TODAY_WEATHER + "를 선택했습니다. 원하는 지역을 선택하세요."
-        keyboard = [[InlineKeyboardButton("서울"), "성남", "수원"],
-                    ["용인", "제주", "독도"],
-                    ["이전"]]
+        areas = ["서울", "성남", "수원", "용인", "제주", "독도", "이전"]
+        area_list = []
 
-        # Create initial message:
-        message = ""
-        bot.sendChatAction(update.message.chat_id, "TYPING")
-        update.message.reply_text(register_text, reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
+        for area in areas:
+            area_list.append(InlineKeyboardButton(area, callback_data=area))
+
+        show_areas = InlineKeyboardMarkup(
+            build_keyboard(area_list, (int)(len(area_list)/3)))  # make markup
+
+        bot.sendChatAction(chat_id, "TYPING")
+        update.callback_query.message.reply_text(register_text, reply_markup=show_areas)
         return CURWEATHER
 
-    elif update.message.text == MUSIC_CHART:
+    elif update.callback_query.data == MUSIC_CHART:
         bot.sendChatAction(chat_id, "TYPING")
         register_text = MUSIC_CHART + "를 선택했습니다."
         update.message.reply_text(register_text, reply_markup=ReplyKeyboardRemove())
         get_music_chart(bot, update)
 
-    elif update.message.text == SEARCH_CHART:
+    elif update.callback_query.data == SEARCH_CHART:
         bot.sendChatAction(chat_id, "TYPING")
         register_text = SEARCH_CHART + "를 선택했습니다."
         update.message.reply_text(register_text, reply_markup=ReplyKeyboardRemove())
         get_search_rank(bot, update)
 
-    elif update.message.text == RECOMM_FOOD:
+    elif update.callback_query.data == RECOMM_FOOD:
         bot.sendChatAction(chat_id, "TYPING")
         register_text = RECOMM_FOOD + "를 선택했습니다. 지역을 선택하세요."
-        keyboard_where = [[InlineKeyboardButton("강남"), "판교", "서현"],
-                    ["서초", "야탑"]]
+        where = ["강남", "판교", "서현", "서초", "야탑", "정자"]
+        where_list = []
+
+        for item in where:
+            where_list.append(InlineKeyboardButton(item, callback_data=item))
+
+        show_where = InlineKeyboardMarkup(
+            build_keyboard(where_list, (int)(len(where_list) / 3)))  # make markup
+
         # 검색어 초기화
-        search_keyword = ""
+        search_keyword = []
         # 지역선택
-        bot.sendChatAction(update.message.chat_id, "TYPING")
-        update.message.reply_text(register_text, reply_markup=ReplyKeyboardMarkup(keyboard_where, one_time_keyboard=True))
-        search_keyword += SETWHERE
+        bot.sendChatAction(chat_id, "TYPING")
+        update.callback_query.message.reply_text(register_text, reply_markup=show_where)
+        search_keyword.append(SETWHERE)
 
         # 시간대 선택
         bot.sendChatAction(chat_id, "TYPING")
-        keyboard_when = [[InlineKeyboardButton("점심"), "저녁", "밤"]]
-        update.message.reply_text("시간대를 선택하세요",
-                                  reply_markup=ReplyKeyboardMarkup(keyboard_when, one_time_keyboard=True))
-        search_keyword += SETWHEN
+        when = ["점심", "저녁", "밤"]
+        when_list = []
+
+        for item in when:
+            when_list.append(InlineKeyboardButton(item, callback_data=item))
+
+        show_when = InlineKeyboardMarkup(
+            build_keyboard(when_list, (int)(len(when_list) / 3)))  # make markup
+
+        update.callback_query.message.reply_text("시간대를 선택하세요", reply_markup=show_when)
+        search_keyword.append(SETWHEN)
 
         # 유형 선택
         bot.sendChatAction(chat_id, "TYPING")
-        keyboard_howmany = [[InlineKeyboardButton("혼밥"), "회식"]]
-        update.message.reply_text("식사 유형을 선택하세요",
-                                  reply_markup=ReplyKeyboardMarkup(keyboard_howmany, one_time_keyboard=True))
-        search_keyword += SETHOWMANY
+        howmany = ["혼밥", "회식"]
+        howmany_list = []
+
+        for item in howmany:
+            howmany_list.append(InlineKeyboardButton(item, callback_data=item))
+
+        show_where = InlineKeyboardMarkup(build_keyboard(howmany_list, (int)(len(howmany_list) / 2)))  # make markup
+        update.message.callback_query.reply_text("식사 유형을 선택하세요", reply_markup=show_where)
+        search_keyword.append(SETHOWMANY)
+        print(search_keyword)
 
         return RESTAURANT
 
@@ -137,6 +158,16 @@ def cancel(bot, update):
     return ConversationHandler.END
 
 
+# 개수에 따라서 메뉴 template 생성해주는 함수
+def build_keyboard(buttons, n_cols, header_buttons=None, footer_buttons=None):
+    keyboard = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
+    if header_buttons:
+        keyboard.insert(0, header_buttons)
+    if footer_buttons:
+        keyboard.append(footer_buttons)
+    return keyboard
+
+
 # main문을 정의하고
 def main():
 
@@ -149,12 +180,12 @@ def main():
         entry_points=[CommandHandler('start', start)],
 
         states={
-            MENU: [MessageHandler(Filters.text, menu)],
-            CURWEATHER: [MessageHandler(Filters.text, weather, pass_user_data=True)],
+            MENU: [CallbackQueryHandler(menu)],
+            CURWEATHER: [CallbackQueryHandler(weather, pass_user_data=True)],
             RESTAURANT: [MessageHandler(Filters.text, get_restaurant)],
-            SETWHERE: [MessageHandler(Filters.text, set_where)],
-            SETWHEN: [MessageHandler(Filters.text, set_when)],
-            SETHOWMANY: [MessageHandler(Filters.text, set_howmany)]
+            SETWHEN : [CallbackQueryHandler(set_when)],
+            SETWHERE : [CallbackQueryHandler(set_where)],
+            SETHOWMANY : [CallbackQueryHandler(set_howmany)]
         },
 
         fallbacks=[CommandHandler('end', cancel)]

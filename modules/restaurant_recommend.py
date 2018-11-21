@@ -1,16 +1,20 @@
 import requests
 from bs4 import BeautifulSoup
 
+
 def set_where(self, update):
-    return update.message.text + " "
+    print(update.callback_query.data)
+    return update.callback_query.data + " "
 
 
 def set_when(self, update):
-    return update.message.text+" "
+    print(update.callback_query.data)
+    return update.callback_query.data+" "
 
 
 def set_howmany(self, update):
-    return update.message.text
+    print(update.callback_query.data)
+    return update.callback_query.data
 
 
 #다이닝 코드 크롤링

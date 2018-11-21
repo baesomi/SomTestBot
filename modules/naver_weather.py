@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from uuid import uuid4
-from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, RegexHandler)
+from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler)
 from emoji import emojize
 
 #GLOBAL VARIABLE
@@ -16,6 +16,7 @@ EMOJI_FOGGY = emojize(":foggy:", use_aliases=True)
 EMOJI_RANIY = emojize(":umbrella:", use_aliases=True)
 EMOJI_SNOWING = emojize(":snowflake:", use_aliases=True)
 EMOJI_SUNNY = emojize(":sunny:", use_aliases=True)
+
 
 def weather(self, update, user_data):
     from main import start
@@ -79,7 +80,7 @@ def weather(self, update, user_data):
 
     key = str(uuid4())
     # 사용자가 입력한 도시명을 받는다.
-    area = update.message.text
+    area = update.callback_query.data
     if area == "이전":
         return start(self, update)
     else:
@@ -111,7 +112,7 @@ def weather(self, update, user_data):
         else:
             result_emoji.append("")
 
-    update.message.reply_text(
+    update.callback_query.message.reply_text(
         "[" + self.area + " 날씨]\n"
         + "- 오늘(" + t_ary[3] + ")\n"
         + "\t오전 : " + t_ary[7] + "℃(" + t_ary[9] + " " + result_emoji[0] + ", 강수확률 " + t_ary[11] + ")\n"
