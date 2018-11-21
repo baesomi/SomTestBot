@@ -21,6 +21,6 @@ def get_music_chart(self, update):
         if matched:
             song_id = matched.group(1)
             song_url = 'https://www.melon.com/song/detail.htm?songId=' + song_id
-            melon_top_ten += str(idx) + '위 ' + title + '\n' + song_url + '\n'
+            melon_top_ten += str(idx) + '위 ' + title + '\n' +song_url + '\n'
 
     update.message.reply_text(melon_top_ten)
